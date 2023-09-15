@@ -1,0 +1,23 @@
+INSERT INTO USERS (ID, EMAIL, NAME, PASSWORD) 
+VALUES(101, 'sanchit@test.com', 'Sanchit Mishra', 'mypass');
+
+INSERT INTO USERS (ID, EMAIL, NAME, PASSWORD)
+VALUES(102, 'roshan@test.com', 'Roshan Choudhary', 'mypass');
+
+INSERT INTO USERS (ID, EMAIL, NAME, PASSWORD)
+VALUES(103, 'kuldeep@test.com', 'Kuldeep Singh', 'mypass');
+
+INSERT INTO USERS (ID, EMAIL, NAME, PASSWORD)
+VALUES(104, 'deepak@test.com', 'Deepak Lal', 'mypass');
+
+INSERT INTO ADDRESS (ID, USER_ID, CITY, STREET, COUNTRY)
+VALUES (10001, 101, 'Lucknow', '124 Raniganj','INDIA');
+
+INSERT INTO ADDRESS (ID, USER_ID, CITY, STREET, COUNTRY)
+VALUES (10002, 101, 'Noida', 'Sector-134','INDIA');
+
+INSERT INTO ADDRESS (ID, USER_ID, CITY, STREET, COUNTRY)
+VALUES (10003, 102, 'Noida', 'NSEZ','INDIA');
+
+INSERT INTO ADDRESS (ID, USER_ID, CITY, STREET, COUNTRY)
+VALUES (10004, 104, 'Ghaziabad', '48 Razigarh', 'INDIA');

@@ -27,10 +27,11 @@ public class Address {
 	public Address() {
 	}
 
-	public Address(String street, String city, String country) {
+	public Address(String street, String city, String country, Users user) {
 		this.street = street;
 		this.city = city;
 		this.country = country;
+		this.user = user;
 	}
 
 	public Integer getId() {

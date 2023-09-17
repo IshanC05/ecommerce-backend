@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Users {
@@ -21,17 +22,22 @@ public class Users {
 	private String password;
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private List<Address> addresses = new ArrayList<>();
+	private List<Address> addresses;
+
+	@OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+	private Cart cart;
 
 	public Users() {
 	}
 
-	public Users(Integer id, String name, String email, String password) {
+	public Users(Integer id, String name, String email, String password, Cart cart) {
 		super();
 		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.password = password;
+		this.cart = cart;
+		addresses = new ArrayList<>();
 	}
 
 	public Integer getId() {
@@ -72,6 +78,14 @@ public class Users {
 
 	public void setAddresses(List<Address> addresses) {
 		this.addresses = addresses;
+	}
+
+	public Cart getCart() {
+		return cart;
+	}
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
 	}
 
 	@Override

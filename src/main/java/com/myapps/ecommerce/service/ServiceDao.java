@@ -3,23 +3,30 @@ package com.myapps.ecommerce.service;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.myapps.ecommerce.entity.Address;
+import com.myapps.ecommerce.entity.Cart;
 import com.myapps.ecommerce.entity.Users;
 import com.myapps.ecommerce.repository.AddressRepository;
+import com.myapps.ecommerce.repository.CartRepository;
 import com.myapps.ecommerce.repository.UserRepository;
 
 @Component
 public class ServiceDao {
 
-	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
 	private AddressRepository addressRepository;
+	private CartRepository cartRepository;
+
+	public ServiceDao(UserRepository userRepository, AddressRepository addressRepository,
+			CartRepository cartRepository) {
+		super();
+		this.userRepository = userRepository;
+		this.addressRepository = addressRepository;
+		this.cartRepository = cartRepository;
+	}
 
 	// Users
 
@@ -38,6 +45,9 @@ public class ServiceDao {
 
 	public ResponseEntity<Users> addNewUser(Users newUser) {
 		Users savedUser = userRepository.save(newUser);
+		Cart newCart = new Cart();
+		newCart.setUser(savedUser);
+		cartRepository.save(newCart);
 		return ResponseEntity.status(201).body(savedUser);
 	}
 
@@ -119,6 +129,11 @@ public class ServiceDao {
 			return ResponseEntity.ok(updatedAddress);
 		}
 		return ResponseEntity.notFound().build();
+	}
+
+	// Cart
+	public List<Cart> retrieveAllCarts() {
+		return cartRepository.findAll();
 	}
 
 }

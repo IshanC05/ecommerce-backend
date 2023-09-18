@@ -4,14 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 
 @Entity
@@ -23,19 +22,15 @@ public class Cart {
 
 	@OneToOne
 	@JsonIgnore
-	@JoinColumn(name = "user_id")
 	private Users user;
 
-	@ManyToMany
-	@JoinTable(name = "cart_product", joinColumns = @JoinColumn(name = "cart_id"), inverseJoinColumns = @JoinColumn(name = "product_id"))
-	private Set<Product> products = new HashSet<>();
+	@OneToMany(mappedBy = "cart")
+	private Set<CartItem> cartItems = new HashSet<>();
 
 	public Cart() {
-
 	}
 
 	public Cart(Users user) {
-		super();
 		this.user = user;
 	}
 
@@ -55,16 +50,27 @@ public class Cart {
 		this.user = user;
 	}
 
-	public Set<Product> getProduct() {
-		return products;
+	@JsonManagedReference
+	public Set<CartItem> getCartItems() {
+		return cartItems;
 	}
 
-	public void setProduct(Set<Product> product) {
-		this.products = product;
+	public void setCartItems(Set<CartItem> cartItems) {
+		this.cartItems = cartItems;
+	}
+
+	public void addCartItem(CartItem cartItem) {
+		cartItems.add(cartItem);
+		cartItem.setCart(this);
+	}
+
+	public void removeCartItem(CartItem cartItem) {
+		cartItems.remove(cartItem);
+		cartItem.setCart(null);
 	}
 
 	@Override
 	public String toString() {
-		return "Cart [id=" + id + ", user=" + user + ", products=" + products + "]";
+		return "Cart [id=" + id + ", user=" + user + "]";
 	}
 }

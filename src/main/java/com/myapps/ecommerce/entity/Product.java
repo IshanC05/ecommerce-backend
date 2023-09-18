@@ -5,7 +5,6 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -23,15 +22,13 @@ public class Product {
 	private double price;
 
 	@JsonIgnore
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "products")
-	private List<Cart> carts;
+	@OneToMany(mappedBy = "product")
+	private List<CartItem> cartItems;
 
 	public Product() {
-
 	}
 
 	public Product(String productName, String description, String imgUrl, double price) {
-		super();
 		this.productName = productName;
 		this.description = description;
 		this.imgUrl = imgUrl;
@@ -50,8 +47,8 @@ public class Product {
 		return productName;
 	}
 
-	public void setProductName(String name) {
-		this.productName = name;
+	public void setProductName(String productName) {
+		this.productName = productName;
 	}
 
 	public String getDescription() {
@@ -78,12 +75,12 @@ public class Product {
 		this.price = price;
 	}
 
-	public List<Cart> getCarts() {
-		return carts;
+	public List<CartItem> getCartItems() {
+		return cartItems;
 	}
 
-	public void setCarts(List<Cart> carts) {
-		this.carts = carts;
+	public void setCartItems(List<CartItem> cartItems) {
+		this.cartItems = cartItems;
 	}
 
 	@Override

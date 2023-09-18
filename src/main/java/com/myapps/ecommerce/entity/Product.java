@@ -1,48 +1,56 @@
 package com.myapps.ecommerce.entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Product {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Integer pId;
+	private Long pId;
 	private String productName;
 	private String description;
 	private String imgUrl;
+	private double price;
 
-//	@ManyToMany(mappedBy = "products", cascade = CascadeType.ALL)
-//	private Set<Cart> carts = new HashSet<>();
+	@JsonIgnore
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "products")
+	private List<Cart> carts;
 
-	Product() {
+	public Product() {
 
 	}
 
-	public Product(Integer pId, String productName, String description, String imgUrl) {
+	public Product(String productName, String description, String imgUrl, double price) {
 		super();
-		this.pId = pId;
 		this.productName = productName;
 		this.description = description;
 		this.imgUrl = imgUrl;
+		this.price = price;
 	}
 
-	public Integer getpId() {
+	public Long getpId() {
 		return pId;
 	}
 
-	public void setpId(Integer pId) {
+	public void setpId(Long pId) {
 		this.pId = pId;
 	}
 
-	public String getName() {
+	public String getProductName() {
 		return productName;
 	}
 
-	public void setName(String name) {
+	public void setProductName(String name) {
 		this.productName = name;
 	}
 
@@ -62,11 +70,25 @@ public class Product {
 		this.imgUrl = imgUrl;
 	}
 
-//	public Set<Cart> getCarts() {
-//		return carts;
-//	}
-//
-//	public void setCarts(Set<Cart> carts) {
-//		this.carts = carts;
-//	}
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+	public List<Cart> getCarts() {
+		return carts;
+	}
+
+	public void setCarts(List<Cart> carts) {
+		this.carts = carts;
+	}
+
+	@Override
+	public String toString() {
+		return "Product [pId=" + pId + ", productName=" + productName + ", description=" + description + ", imgUrl="
+				+ imgUrl + ", price=" + price + "]";
+	}
 }

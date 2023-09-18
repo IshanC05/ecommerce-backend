@@ -2,15 +2,18 @@ package com.myapps.ecommerce.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.myapps.ecommerce.entity.Address;
 import com.myapps.ecommerce.entity.Cart;
+import com.myapps.ecommerce.entity.Product;
 import com.myapps.ecommerce.entity.Users;
 import com.myapps.ecommerce.repository.AddressRepository;
 import com.myapps.ecommerce.repository.CartRepository;
+import com.myapps.ecommerce.repository.ProductRepository;
 import com.myapps.ecommerce.repository.UserRepository;
 
 @Component
@@ -19,13 +22,15 @@ public class ServiceDao {
 	private UserRepository userRepository;
 	private AddressRepository addressRepository;
 	private CartRepository cartRepository;
+	private ProductRepository productRepository;
 
-	public ServiceDao(UserRepository userRepository, AddressRepository addressRepository,
-			CartRepository cartRepository) {
+	public ServiceDao(UserRepository userRepository, AddressRepository addressRepository, CartRepository cartRepository,
+			ProductRepository productRepository) {
 		super();
 		this.userRepository = userRepository;
 		this.addressRepository = addressRepository;
 		this.cartRepository = cartRepository;
+		this.productRepository = productRepository;
 	}
 
 	// Users
@@ -136,4 +141,83 @@ public class ServiceDao {
 		return cartRepository.findAll();
 	}
 
+	public ResponseEntity<Cart> retrieveCartByUserId(int user_id) {
+		Optional<Users> foundUserObj = userRepository.findById(user_id);
+		if (foundUserObj.isPresent()) {
+			Users foundUser = foundUserObj.get();
+			Cart found = cartRepository.findByUser(foundUser);
+			return ResponseEntity.ok(found);
+		}
+		return ResponseEntity.notFound().build();
+	}
+
+	public Cart addNewItemToCart(long cart_id, long pId) {
+		Cart cart = cartRepository.findById(cart_id).get();
+		Product p = productRepository.findById(pId).get();
+		Set<Product> allProd = cart.getProduct();
+		allProd.add(p);
+		cart.setProduct(allProd);
+		return cartRepository.save(cart);
+	}
+	
+//	public Cart addNewItemToCart(long cart_id, long pId) {
+//		Cart cart = cartRepository.findById(cart_id).get();
+//		Product p = productRepository.findById(pId).get();
+//		Set<Product> allProd = cart.getProduct();
+//		allProd.add(p);
+//		cart.setProduct(allProd);
+//		return cartRepository.save(cart);
+//	}
+
+	// Product
+	public List<Product> retrieveAllProducts() {
+		return productRepository.findAll();
+	}
+
+	public ResponseEntity<Product> retrieveProductById(long id) {
+		Optional<Product> opt = productRepository.findById(id);
+		if (opt.isPresent()) {
+			Product foundProduct = opt.get();
+			return ResponseEntity.ok(foundProduct);
+		}
+		return ResponseEntity.notFound().build();
+	}
+
+	public ResponseEntity<Product> addNewProduct(Product newProduct) {
+		Product savedProduct = productRepository.save(newProduct);
+		return ResponseEntity.status(201).body(savedProduct);
+	}
+
+	public ResponseEntity<Void> deleteProductById(long id) {
+		Optional<Product> productToBeDeletedObj = productRepository.findById(id);
+		if (productToBeDeletedObj.isPresent()) {
+			Product productToBeDeleted = productToBeDeletedObj.get();
+			productRepository.delete(productToBeDeleted);
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.notFound().build();
+	}
+
+	public ResponseEntity<Product> updateProductById(long id, Product newProduct) {
+		Optional<Product> productFoundObj = productRepository.findById(id);
+		if (productFoundObj.isPresent()) {
+			Product existingProduct = productFoundObj.get();
+
+			if (newProduct.getProductName() != null)
+				existingProduct.setProductName(newProduct.getProductName());
+
+			if (newProduct.getDescription() != null)
+				existingProduct.setDescription(newProduct.getDescription());
+
+			if (newProduct.getImgUrl() != null)
+				existingProduct.setImgUrl(newProduct.getImgUrl());
+
+			if (newProduct.getPrice() != 0.0d)
+				existingProduct.setPrice(newProduct.getPrice());
+
+			Product updatedProduct = productRepository.save(existingProduct);
+			return ResponseEntity.ok(updatedProduct);
+		}
+		return ResponseEntity.notFound().build();
+	}
 }

@@ -13,37 +13,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Product;
-import com.myapps.ecommerce.service.ServiceDao;
+import com.myapps.ecommerce.service.ProductService;
 
 @RestController
 public class ProductController {
 
 	@Autowired
-	private ServiceDao serviceObj;
+	private ProductService productService;
 
 	@GetMapping(path = "/api/products")
 	public List<Product> getAllProducts() {
-		return serviceObj.retrieveAllProducts();
+		return productService.retrieveAllProducts();
 	}
 
 	@GetMapping(path = "/api/products/{pId}")
 	public ResponseEntity<Product> getProductById(@PathVariable long pId) {
-		return serviceObj.retrieveProductById(pId);
+		return productService.retrieveProductById(pId);
 	}
 
 	@PostMapping(path = "/api/products")
 	public ResponseEntity<Product> addNewProduct(@RequestBody Product newProduct) {
-		return serviceObj.addNewProduct(newProduct);
+		return productService.addNewProduct(newProduct);
 	}
 
 	@PutMapping(path = "/api/products/{pId}")
 	public ResponseEntity<Product> updateExistingProduct(@PathVariable long pId, @RequestBody Product newProduct) {
-		return serviceObj.updateProductById(pId, newProduct);
+		return productService.updateProductById(pId, newProduct);
 	}
 
 	@DeleteMapping(path = "/api/products/{pId}")
 	public ResponseEntity<Void> deleteAProduct(@PathVariable long pId) {
-		return serviceObj.deleteProductById(pId);
+		return productService.deleteProductById(pId);
 	}
 
 }

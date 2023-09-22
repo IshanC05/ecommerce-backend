@@ -13,37 +13,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Users;
-import com.myapps.ecommerce.service.ServiceDao;
+import com.myapps.ecommerce.service.UserService;
 
 @RestController
 public class UserController {
 
 	@Autowired
-	private ServiceDao serviceObj;
+	private UserService userService;
 
 	@GetMapping(path = "/api/users")
 	public List<Users> getAllUsers() {
-		return serviceObj.retrieveAllUsers();
+		return userService.retrieveAllUsers();
 	}
 
 	@GetMapping(path = "/api/users/{id}")
 	public ResponseEntity<Users> getUserById(@PathVariable Integer id) {
-		return serviceObj.retrieveUserById(id);
+		return userService.retrieveUserById(id);
 	}
 
 	@PostMapping(path = "/api/users")
 	public ResponseEntity<Users> addNewUser(@RequestBody Users newUser) {
-		return serviceObj.addNewUser(newUser);
+		return userService.addNewUser(newUser);
 	}
 
 	@DeleteMapping(path = "/api/users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
-		return serviceObj.deleteUserById(id);
+		return userService.deleteUserById(id);
 	}
 
 	@PutMapping(path = "/api/users/{id}")
 	public ResponseEntity<Users> updateUserById(@PathVariable Integer id, @RequestBody Users user) {
-		return serviceObj.updateUserById(id, user);
+		return userService.updateUserById(id, user);
 	}
 
 }

@@ -13,38 +13,38 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Address;
-import com.myapps.ecommerce.service.ServiceDao;
+import com.myapps.ecommerce.service.AddressService;
 
 @RestController
 public class AddressController {
 
 	@Autowired
-	private ServiceDao serviceObj;
+	private AddressService addressService;
 
 	@GetMapping(path = "/api/address")
 	public List<Address> getAllAddress() {
-		return serviceObj.retrieveAllAddress();
+		return addressService.retrieveAllAddress();
 	}
 
 	@GetMapping(path = "/api/{user_id}/address")
 	public List<Address> retrieveAllAddressByUserId(@PathVariable Integer user_id) {
-		return serviceObj.retrieveAllAddressByUserId(user_id);
+		return addressService.retrieveAllAddressByUserId(user_id);
 	}
 
 	@PostMapping(path = "/api/{user_id}/address")
 	public ResponseEntity<Address> addNewAddress(@PathVariable Integer user_id, @RequestBody Address address) {
-		return serviceObj.addNewAddressByUserId(user_id, address);
+		return addressService.addNewAddressByUserId(user_id, address);
 	}
 
 	@DeleteMapping(path = "/api/{user_id}/address/{add_id}")
 	public ResponseEntity<Void> deleteAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id) {
-		return serviceObj.deleteAddressByUserId(user_id, add_id);
+		return addressService.deleteAddressByUserId(user_id, add_id);
 	}
 
 	@PutMapping(path = "/api/{user_id}/address/{add_id}")
 	public ResponseEntity<Address> updateAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id,
 			@RequestBody Address address) {
-		return serviceObj.updateAddressById(user_id, add_id, address);
+		return addressService.updateAddressById(user_id, add_id, address);
 	}
 
 }

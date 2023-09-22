@@ -36,6 +36,11 @@ public class UserController {
 		return userService.addNewUser(newUser);
 	}
 
+	@PostMapping(path = "/api/users/login")
+	public ResponseEntity<Users> getUserDetailsForLogin(@RequestBody Users newUser) {
+		return userService.retrieveUserForLogin(newUser);
+	}
+
 	@DeleteMapping(path = "/api/users/{id}")
 	public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
 		return userService.deleteUserById(id);

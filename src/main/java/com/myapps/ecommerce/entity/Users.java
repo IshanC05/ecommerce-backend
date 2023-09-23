@@ -30,9 +30,8 @@ public class Users {
 	public Users() {
 	}
 
-	public Users(Integer id, String name, String email, String password, Cart cart) {
+	public Users(String name, String email, String password, Cart cart) {
 		super();
-		this.id = id;
 		this.name = name;
 		this.email = email;
 		this.password = password;

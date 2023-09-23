@@ -8,7 +8,10 @@ import org.springframework.stereotype.Service;
 
 import com.myapps.ecommerce.entity.Cart;
 import com.myapps.ecommerce.entity.Users;
+import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.exception.UserNotFoundException;
+import com.myapps.ecommerce.payload.UserLoginDto;
+import com.myapps.ecommerce.payload.UserSignUpDto;
 import com.myapps.ecommerce.repository.CartRepository;
 import com.myapps.ecommerce.repository.UserRepository;
 
@@ -31,7 +34,11 @@ public class UserService {
 		return ResponseEntity.ok(foundUser);
 	}
 
-	public ResponseEntity<Users> addNewUser(Users newUser) {
+	public ResponseEntity<Users> addNewUser(UserSignUpDto newUserDto) {
+		Users newUser = new Users();
+		newUser.setName(newUserDto.getName());
+		newUser.setEmail(newUserDto.getEmail());
+		newUser.setPassword(newUserDto.getPassword());
 		Users savedUser = userRepository.save(newUser);
 		Cart newCart = new Cart();
 		newCart.setUser(savedUser);
@@ -39,17 +46,18 @@ public class UserService {
 		return ResponseEntity.status(201).body(savedUser);
 	}
 
-	public ResponseEntity<Users> retrieveUserForLogin(Users user) {
-		Users foundUser = userRepository.findByEmail(user.getEmail())
+	public ResponseEntity<Users> retrieveUserForLogin(UserLoginDto userDto) {
+		Users foundUser = userRepository.findByEmail(userDto.getEmail())
 				.orElseThrow(() -> new UserNotFoundException("Invalid Credentials"));
 		return ResponseEntity.ok(foundUser);
 	}
 
-	public ResponseEntity<Void> deleteUserById(int id) {
-		Users userToBeDeletedObj = userRepository.findById(id)
+	public ResponseEntity<ApiResponse> deleteUserById(int user_id) {
+		Users userToBeDeleted = userRepository.findById(user_id)
 				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
-		userRepository.delete(userToBeDeletedObj);
-		return ResponseEntity.noContent().build();
+		userRepository.delete(userToBeDeleted);
+		ApiResponse apiResponse = new ApiResponse(String.format("User with Id %s deleted successfully", user_id), true);
+		return ResponseEntity.ok(apiResponse);
 	}
 
 	public ResponseEntity<Users> updateUserById(int id, Users user) {

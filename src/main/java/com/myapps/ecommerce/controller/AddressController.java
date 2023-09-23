@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Address;
+import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.service.AddressService;
 
 @RestController
@@ -37,7 +38,7 @@ public class AddressController {
 	}
 
 	@DeleteMapping(path = "/api/{user_id}/address/{add_id}")
-	public ResponseEntity<Void> deleteAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id) {
+	public ResponseEntity<ApiResponse> deleteAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id) {
 		return addressService.deleteAddressByUserId(user_id, add_id);
 	}
 

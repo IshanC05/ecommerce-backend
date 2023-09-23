@@ -1,7 +1,6 @@
 package com.myapps.ecommerce.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,9 @@ import com.myapps.ecommerce.entity.Cart;
 import com.myapps.ecommerce.entity.CartItem;
 import com.myapps.ecommerce.entity.Product;
 import com.myapps.ecommerce.entity.Users;
+import com.myapps.ecommerce.exception.ApiResponse;
+import com.myapps.ecommerce.exception.ResourceNotFoundException;
+import com.myapps.ecommerce.exception.UserNotFoundException;
 import com.myapps.ecommerce.repository.CartItemRepository;
 import com.myapps.ecommerce.repository.CartRepository;
 import com.myapps.ecommerce.repository.ProductRepository;
@@ -36,17 +38,15 @@ public class CartService {
 	}
 
 	public ResponseEntity<Cart> retrieveCartByUserId(int user_id) {
-		Optional<Users> foundUserObj = userRepository.findById(user_id);
-		if (foundUserObj.isPresent()) {
-			Users foundUser = foundUserObj.get();
-			Cart found = cartRepository.findByUser(foundUser);
-			return ResponseEntity.ok(found);
-		}
-		return ResponseEntity.notFound().build();
+		Users foundUser = userRepository.findById(user_id)
+				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
+		Cart found = cartRepository.findByUser(foundUser);
+		return ResponseEntity.ok(found);
 	}
 
 	public Cart addNewItemToCart(long cart_id, long pId, int quantity) {
-		Cart cart = cartRepository.findById(cart_id).get();
+		Cart cart = cartRepository.findById(cart_id)
+				.orElseThrow(() -> new ResourceNotFoundException("Cart", "id", cart_id));
 		Product product = productRepository.findById(pId).get();
 
 		for (CartItem cartItem : cart.getCartItems()) {
@@ -69,8 +69,9 @@ public class CartService {
 		return cartRepository.save(cart);
 	}
 
-	public ResponseEntity<Void> deleteItemFromCart(long cartId, long cartItemId) {
-		Cart cart = cartRepository.findById(cartId).get();
+	public ResponseEntity<ApiResponse> deleteItemFromCart(long cart_id, long cartItemId) {
+		Cart cart = cartRepository.findById(cart_id)
+				.orElseThrow(() -> new ResourceNotFoundException("Cart", "id", cart_id));
 
 		// Find the CartItem to delete
 		CartItem cartItemToDelete = cart.getCartItems().stream().filter(item -> item.getId().equals(cartItemId))
@@ -80,7 +81,9 @@ public class CartService {
 		cart.getCartItems().remove(cartItemToDelete);
 		cartItemRepository.delete(cartItemToDelete);
 		cartRepository.save(cart);
-		return ResponseEntity.noContent().build();
+		ApiResponse apiResponse = new ApiResponse(
+				String.format("Cart Item with Id %s deleted successfully", cartItemId), true);
+		return ResponseEntity.ok(apiResponse);
 	}
 
 }

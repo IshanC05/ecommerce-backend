@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.myapps.ecommerce.entity.Product;
+import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.exception.ResourceNotFoundException;
 import com.myapps.ecommerce.repository.ProductRepository;
 
@@ -32,11 +33,13 @@ public class ProductService {
 		return ResponseEntity.status(201).body(savedProduct);
 	}
 
-	public ResponseEntity<Void> deleteProductById(long id) {
+	public ResponseEntity<ApiResponse> deleteProductById(long id) {
 		Product productToBeDeleted = productRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Product", "Id", id));
 		productRepository.delete(productToBeDeleted);
-		return ResponseEntity.noContent().build();
+		ApiResponse apiResponse = new ApiResponse(
+				String.format("Product with Id %s deleted successfully", id), true);
+		return ResponseEntity.ok(apiResponse);
 	}
 
 	public ResponseEntity<Product> updateProductById(long id, Product newProduct) {

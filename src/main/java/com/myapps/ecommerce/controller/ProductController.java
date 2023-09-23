@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Product;
+import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.service.ProductService;
 
 @RestController
@@ -42,7 +43,7 @@ public class ProductController {
 	}
 
 	@DeleteMapping(path = "/api/products/{pId}")
-	public ResponseEntity<Void> deleteAProduct(@PathVariable long pId) {
+	public ResponseEntity<ApiResponse> deleteAProduct(@PathVariable long pId) {
 		return productService.deleteProductById(pId);
 	}
 

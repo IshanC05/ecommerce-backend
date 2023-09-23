@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Cart;
 import com.myapps.ecommerce.entity.CartItem;
+import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.service.CartService;
 
 @RestController
@@ -37,7 +38,7 @@ public class CartController {
 	}
 
 	@DeleteMapping(path = "/api/carts/{cart_id}/cartItem/{cartItemId}")
-	public ResponseEntity<Void> deleteCartItem(@PathVariable long cart_id, @PathVariable long cartItemId) {
+	public ResponseEntity<ApiResponse> deleteCartItem(@PathVariable long cart_id, @PathVariable long cartItemId) {
 		return cartService.deleteItemFromCart(cart_id, cartItemId);
 	}
 

@@ -13,7 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.myapps.ecommerce.entity.Users;
+import com.myapps.ecommerce.exception.ApiResponse;
+import com.myapps.ecommerce.payload.UserLoginDto;
+import com.myapps.ecommerce.payload.UserSignUpDto;
 import com.myapps.ecommerce.service.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class UserController {
@@ -32,17 +37,17 @@ public class UserController {
 	}
 
 	@PostMapping(path = "/api/users")
-	public ResponseEntity<Users> addNewUser(@RequestBody Users newUser) {
+	public ResponseEntity<Users> addNewUser(@Valid @RequestBody UserSignUpDto newUser) {
 		return userService.addNewUser(newUser);
 	}
 
 	@PostMapping(path = "/api/users/login")
-	public ResponseEntity<Users> getUserDetailsForLogin(@RequestBody Users newUser) {
-		return userService.retrieveUserForLogin(newUser);
+	public ResponseEntity<Users> getUserDetailsForLogin(@Valid @RequestBody UserLoginDto userDto) {
+		return userService.retrieveUserForLogin(userDto);
 	}
 
 	@DeleteMapping(path = "/api/users/{id}")
-	public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
+	public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer id) {
 		return userService.deleteUserById(id);
 	}
 

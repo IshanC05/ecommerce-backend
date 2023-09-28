@@ -1,70 +1,104 @@
 package com.myapps.ecommerce.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
 import com.myapps.ecommerce.entity.Address;
 import com.myapps.ecommerce.entity.Users;
 import com.myapps.ecommerce.exception.ApiResponse;
 import com.myapps.ecommerce.exception.ResourceNotFoundException;
+import com.myapps.ecommerce.exception.UserMismatchException;
 import com.myapps.ecommerce.exception.UserNotFoundException;
+import com.myapps.ecommerce.payload.AddressDto;
 import com.myapps.ecommerce.repository.AddressRepository;
 import com.myapps.ecommerce.repository.UserRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AddressService {
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-	@Autowired
-	private AddressRepository addressRepository;
+    @Autowired
+    private AddressRepository addressRepository;
 
-	public List<Address> retrieveAllAddress() {
-		return addressRepository.findAll();
-	}
+    @Autowired
+    private ModelMapper modelMapper;
 
-	public List<Address> retrieveAllAddressByUserId(Integer user_id) {
-		Users user = userRepository.findById(user_id)
-				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
-		return addressRepository.findByUserId(user_id);
-	}
+    public List<AddressDto> retrieveAllAddress(String username) {
+//        return addressRepository.findAll();
+        List<Address> allAddress = addressRepository.findAll();
+        return allAddress.stream().map(this::addressToDto).collect(Collectors.toList());
+    }
 
-	public ResponseEntity<Address> addNewAddressByUserId(Integer user_id, Address address) {
-		Users foundUser = userRepository.findById(user_id)
-				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
-		address.setUser(foundUser);
-		foundUser.getAddresses().add(address);
-		userRepository.save(foundUser);
-		return ResponseEntity.ok(address);
-	}
+    public List<AddressDto> retrieveAllAddressByUserId(String username, Integer userId) {
+        Users user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No matching user found"));
+        if (!user.getUsername().equals(username)) {
+            throw new UserMismatchException("Logged In user and requesting user is different");
+        }
+//        return addressRepository.findByUserId(user_id);
+        List<Address> allAddress = addressRepository.findAll();
+        return allAddress.stream().map(this::addressToDto).collect(Collectors.toList());
+    }
 
-	public ResponseEntity<ApiResponse> deleteAddressByUserId(Integer user_id, Integer add_id) {
-		Users foundUser = userRepository.findById(user_id)
-				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
-		Address addressToBeDeleted = addressRepository.findById(add_id)
-				.orElseThrow(() -> new ResourceNotFoundException("Address", "id", add_id));
-		addressRepository.delete(addressToBeDeleted);
-		ApiResponse apiResponse = new ApiResponse(String.format("Address with Id %s deleted successfully", add_id),
-				true);
-		return ResponseEntity.ok(apiResponse);
-	}
+    public ResponseEntity<AddressDto> addNewAddressByUserId(String username, Integer userId, AddressDto addressDto) {
+        Users foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No matching user found"));
+        if (!foundUser.getUsername().equals(username))
+            throw new UserMismatchException("Logged In user and requesting user is different");
+        Address address = this.addressDtoToAddress(addressDto);
+        address.setUser(foundUser);
+        foundUser.getAddresses().add(address);
+        Users savedUser = userRepository.save(foundUser);
+        Address newAddress = savedUser.getAddresses().get(savedUser.getAddresses().size() - 1);
+        AddressDto newAddressDto = this.addressToDto(newAddress);
+//        return ResponseEntity.ok(address);
+        return ResponseEntity.ok(newAddressDto);
+    }
 
-	public ResponseEntity<Address> updateAddressById(Integer user_id, Integer add_id, Address newAddress) {
-		Users foundUser = userRepository.findById(user_id)
-				.orElseThrow(() -> new UserNotFoundException("No matching user found"));
-		Address existingAddress = addressRepository.findById(add_id)
-				.orElseThrow(() -> new ResourceNotFoundException("Address", "id", add_id));
-		if (newAddress.getStreet() != null)
-			existingAddress.setStreet(newAddress.getStreet());
-		if (newAddress.getCity() != null)
-			existingAddress.setCity(newAddress.getCity());
-		if (newAddress.getCountry() != null)
-			existingAddress.setCountry(newAddress.getCountry());
-		Address updatedAddress = addressRepository.save(existingAddress);
-		return ResponseEntity.ok(updatedAddress);
-	}
+    public ResponseEntity<ApiResponse> deleteAddressByUserId(String username, Integer userId, Integer addressId) {
+        Users foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No matching user found"));
+        if (!foundUser.getUsername().equals(username))
+            throw new UserMismatchException("Logged In user and requesting user is different");
+        Address addressToBeDeleted = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
+        addressRepository.delete(addressToBeDeleted);
+        ApiResponse apiResponse = new ApiResponse(String.format("Address with Id %s deleted successfully", addressId),
+                true);
+        return ResponseEntity.ok(apiResponse);
+    }
+
+    public ResponseEntity<AddressDto> updateAddressById(String username, Integer userId, Integer addressId,
+                                                        AddressDto newAddressDto) {
+        Users foundUser = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("No matching user found"));
+        if (!foundUser.getUsername().equals(username))
+            throw new UserMismatchException("Logged In user and requesting user is different");
+        Address existingAddress = addressRepository.findById(addressId)
+                .orElseThrow(() -> new ResourceNotFoundException("Address", "id", addressId));
+        Address newAddress = this.addressDtoToAddress(newAddressDto);
+        if (newAddress.getStreet() != null)
+            existingAddress.setStreet(newAddress.getStreet());
+        if (newAddress.getCity() != null)
+            existingAddress.setCity(newAddress.getCity());
+        if (newAddress.getCountry() != null)
+            existingAddress.setCountry(newAddress.getCountry());
+        Address updatedAddress = addressRepository.save(existingAddress);
+        AddressDto updatedAddressDto = this.addressToDto(updatedAddress);
+        return ResponseEntity.ok(updatedAddressDto);
+    }
+
+    private AddressDto addressToDto(Address address) {
+        return modelMapper.map(address, AddressDto.class);
+    }
+
+    private Address addressDtoToAddress(AddressDto addressDto) {
+        return modelMapper.map(addressDto, Address.class);
+    }
 }

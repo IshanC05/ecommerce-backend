@@ -1,59 +1,48 @@
 package com.myapps.ecommerce.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.myapps.ecommerce.entity.Users;
 import com.myapps.ecommerce.exception.ApiResponse;
-import com.myapps.ecommerce.payload.UserLoginDto;
-import com.myapps.ecommerce.payload.UserSignUpDto;
+import com.myapps.ecommerce.security.JwtHelper;
 import com.myapps.ecommerce.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
+import java.util.List;
 
 @RestController
+@RequestMapping(path = "/api")
 public class UserController {
 
-	@Autowired
-	private UserService userService;
+    @Autowired
+    private UserService userService;
 
-	@GetMapping(path = "/api/users")
-	public List<Users> getAllUsers() {
-		return userService.retrieveAllUsers();
-	}
+    @Autowired
+    private JwtHelper helper;
 
-	@GetMapping(path = "/api/users/{id}")
-	public ResponseEntity<Users> getUserById(@PathVariable Integer id) {
-		return userService.retrieveUserById(id);
-	}
+    @GetMapping(path = "/users")
+    public List<Users> getAllUsers(@RequestHeader HttpHeaders header) {
+        String username = helper.getUsernameFromToken(header);
+        return userService.retrieveAllUsers(username);
+    }
 
-	@PostMapping(path = "/api/users")
-	public ResponseEntity<Users> addNewUser(@Valid @RequestBody UserSignUpDto newUser) {
-		return userService.addNewUser(newUser);
-	}
+    @GetMapping(path = "/users/{userId}")
+    public ResponseEntity<Users> getUserByUserId(@RequestHeader HttpHeaders header, @PathVariable Integer userId) {
+        String username = helper.getUsernameFromToken(header);
+        return userService.retrieveUserById(userId, username);
+    }
 
-	@PostMapping(path = "/api/users/login")
-	public ResponseEntity<Users> getUserDetailsForLogin(@Valid @RequestBody UserLoginDto userDto) {
-		return userService.retrieveUserForLogin(userDto);
-	}
+    @DeleteMapping(path = "/users/{userId}")
+    public ResponseEntity<ApiResponse> deleteUser(@RequestHeader HttpHeaders header, @PathVariable Integer userId) {
+        String username = helper.getUsernameFromToken(header);
+        return userService.deleteUserById(userId, username);
+    }
 
-	@DeleteMapping(path = "/api/users/{id}")
-	public ResponseEntity<ApiResponse> deleteUser(@PathVariable Integer id) {
-		return userService.deleteUserById(id);
-	}
-
-	@PutMapping(path = "/api/users/{id}")
-	public ResponseEntity<Users> updateUserById(@PathVariable Integer id, @RequestBody Users user) {
-		return userService.updateUserById(id, user);
-	}
+    @PutMapping(path = "/users/{userId}")
+    public ResponseEntity<Users> updateUserByUserId(@RequestHeader HttpHeaders header, @PathVariable Integer userId,@RequestBody Users user) {
+        String username = helper.getUsernameFromToken(header);
+        return userService.updateUserById(userId, user, username);
+    }
 
 }

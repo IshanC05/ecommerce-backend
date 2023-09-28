@@ -8,5 +8,5 @@ import com.myapps.ecommerce.entity.Users;
 
 public interface UserRepository extends JpaRepository<Users, Integer> {
 
-	Optional<Users> findByEmail(String email);
+	public Optional<Users> findByEmail(String email);
 }

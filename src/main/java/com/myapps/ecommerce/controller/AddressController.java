@@ -1,51 +1,60 @@
 package com.myapps.ecommerce.controller;
 
+import com.myapps.ecommerce.exception.ApiResponse;
+import com.myapps.ecommerce.payload.AddressDto;
+import com.myapps.ecommerce.security.JwtHelper;
+import com.myapps.ecommerce.service.AddressService;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.myapps.ecommerce.entity.Address;
-import com.myapps.ecommerce.exception.ApiResponse;
-import com.myapps.ecommerce.service.AddressService;
-
 @RestController
+@RequestMapping(path = "/api")
 public class AddressController {
 
-	@Autowired
-	private AddressService addressService;
+    @Autowired
+    private AddressService addressService;
 
-	@GetMapping(path = "/api/address")
-	public List<Address> getAllAddress() {
-		return addressService.retrieveAllAddress();
-	}
+    @Autowired
+    private JwtHelper helper;
 
-	@GetMapping(path = "/api/{user_id}/address")
-	public List<Address> retrieveAllAddressByUserId(@PathVariable Integer user_id) {
-		return addressService.retrieveAllAddressByUserId(user_id);
-	}
+    @GetMapping(path = "/address")
+    public List<AddressDto> getAllAddress(@RequestHeader HttpHeaders header) {
+        String username = helper.getUsernameFromToken(header);
+        return addressService.retrieveAllAddress(username);
+    }
 
-	@PostMapping(path = "/api/{user_id}/address")
-	public ResponseEntity<Address> addNewAddress(@PathVariable Integer user_id, @RequestBody Address address) {
-		return addressService.addNewAddressByUserId(user_id, address);
-	}
+    @GetMapping(path = "/{userId}/address")
+    public List<AddressDto> retrieveAllAddressByUserId(@RequestHeader HttpHeaders header,
+                                                       @PathVariable Integer userId) {
+        String username = helper.getUsernameFromToken(header);
+        return addressService.retrieveAllAddressByUserId(username, userId);
+    }
 
-	@DeleteMapping(path = "/api/{user_id}/address/{add_id}")
-	public ResponseEntity<ApiResponse> deleteAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id) {
-		return addressService.deleteAddressByUserId(user_id, add_id);
-	}
+    @PostMapping(path = "/{userId}/address")
+    public ResponseEntity<AddressDto> addNewAddress(@RequestHeader HttpHeaders header, @PathVariable Integer userId,
+                                                    @RequestBody @Valid AddressDto addressDto) {
+        String username = helper.getUsernameFromToken(header);
+        return addressService.addNewAddressByUserId(username, userId, addressDto);
+    }
 
-	@PutMapping(path = "/api/{user_id}/address/{add_id}")
-	public ResponseEntity<Address> updateAnAddress(@PathVariable Integer user_id, @PathVariable Integer add_id,
-			@RequestBody Address address) {
-		return addressService.updateAddressById(user_id, add_id, address);
-	}
+    @DeleteMapping(path = "/{userId}/address/{addressId}")
+    public ResponseEntity<ApiResponse> deleteAnAddress(@RequestHeader HttpHeaders header, @PathVariable Integer userId, @PathVariable Integer addressId) {
+        String username = helper.getUsernameFromToken(header);
+        return addressService.deleteAddressByUserId(username, userId, addressId);
+    }
+
+    @PutMapping(path = "/{userId}/address/{addressId}")
+    public ResponseEntity<AddressDto> updateAnAddress(@RequestHeader HttpHeaders header,
+                                                      @PathVariable Integer userId, @PathVariable Integer addressId,
+                                                      @RequestBody @Valid AddressDto addressDto) {
+
+        String username = helper.getUsernameFromToken(header);
+        return addressService.updateAddressById(username, userId, addressId, addressDto);
+    }
 
 }

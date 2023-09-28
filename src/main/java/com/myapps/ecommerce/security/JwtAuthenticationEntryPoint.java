@@ -19,7 +19,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 			AuthenticationException authException) throws IOException, ServletException {
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		PrintWriter writer = response.getWriter();
-		writer.println("Access Denied !! " + authException.getMessage());
-
+		writer.println("Access Denied! " + authException.getMessage());
+//		throw new UserMismatchException("No Logged in user found");
 	}
 }

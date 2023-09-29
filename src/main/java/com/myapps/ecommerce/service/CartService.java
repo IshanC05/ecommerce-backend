@@ -49,7 +49,9 @@ public class CartService {
         Cart cart = cartRepository.findById(cartId).orElseThrow(() -> new ResourceNotFoundException("Cart", "id", cartId));
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product", "id", productId));
 
-        Users foundUser = userRepository.findByEmail(username).orElseThrow(() -> new UserNotFoundException("No matching user found"));
+        Users foundUser = userRepository.findById(cart.getUser().getId()).orElseThrow(() -> new UserNotFoundException("No " +
+                "matching " +
+                "user found"));
         if (!foundUser.getUsername().equals(username))
             throw new UserMismatchException("Logged In user and requesting user is different");
 

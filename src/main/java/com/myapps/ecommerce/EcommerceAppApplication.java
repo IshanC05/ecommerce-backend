@@ -26,7 +26,8 @@ public class EcommerceAppApplication {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // allow all mappings to be accessible
                         .allowedMethods("*") // allow all methods to be accessible
-                        .allowedOrigins("*"); // allow the accessibility for these origins
+                        .allowedOrigins("*") // allow the accessibility for these origins
+                        .allowedHeaders("*");
             }
         };
     }
